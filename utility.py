@@ -8,11 +8,10 @@ from email.mime.text import MIMEText
 import psycopg2
 import streamlit as st
 import re
-from config import EMAIL_CONFIG, POSTGRES_CONFIG
 
 # Database setup
 def init_db():
-    conn = psycopg2.connect(POSTGRES_CONFIG['uri'])  # Connect to PostgreSQL
+    conn = psycopg2.connect(st.secrets("POSTGRES_URI"))  # Connect to PostgreSQL
     c = conn.cursor()
     c.execute(
         """CREATE TABLE IF NOT EXISTS subscriptions
@@ -28,7 +27,7 @@ def is_valid_email(email):
 
 # Function to add subscription to the database
 def add_subscription(email, min_magnitude, event_type):
-    conn = psycopg2.connect(POSTGRES_CONFIG['uri'])  # Connect to PostgreSQL
+    conn = psycopg2.connect(st.secrets("POSTGRES_URI"))  # Connect to PostgreSQL
     c = conn.cursor()
     try:
         c.execute(
@@ -127,7 +126,7 @@ def fetch_earthquake_data(start_date, end_date, min_magnitude, event_type):
 
 # Function to reset sent flags
 def reset_sent_flags():
-    conn = psycopg2.connect(**POSTGRES_CONFIG)  # Connect to PostgreSQL
+    conn = psycopg2.connect(st.secrets("POSTGRESS_URI"))  # Connect to PostgreSQL
     c = conn.cursor()
     c.execute("UPDATE subscriptions SET sent = FALSE")
     conn.commit()
@@ -135,7 +134,7 @@ def reset_sent_flags():
 
 # Function to send email
 def send_email(email, content):
-    conn = psycopg2.connect(**POSTGRES_CONFIG)  # Connect to PostgreSQL
+    conn = psycopg2.connect(st.secrets("POSTGRESS_URI"))  # Connect to PostgreSQL
     c = conn.cursor()
 
     # Check if the email has already been sent
@@ -149,14 +148,14 @@ def send_email(email, content):
     # Send the email
     msg = MIMEMultipart()
     msg["Subject"] = "Daily Earthquake Newsletter"
-    msg["From"] = EMAIL_CONFIG["email"]
+    msg["From"] = st.secrets("EMAIL")
     msg["To"] = email
     msg.attach(MIMEText(content, "html"))
 
     try:
-        with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], port=EMAIL_CONFIG["smtp_port"]) as server:
-            server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
-            server.sendmail(EMAIL_CONFIG["email"], email, msg.as_string())
+        with smtplib.SMTP(st.secrets("SMTP_SERVER"), port=st.secrets("SMTP_PORT")) as server:
+            server.login(st.secrets("EMAIL"), st.secrets("PASSWORD"))
+            server.sendmail(st.secrets("EMAIL"), email, msg.as_string())
 
         # Mark the email as sent
         c.execute("UPDATE subscriptions SET sent = TRUE WHERE email = %s", (email,))
