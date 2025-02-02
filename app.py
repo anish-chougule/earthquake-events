@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import pydeck as pdk
-from airflow.dags.utility import *
+from utility import *
 
 
 
