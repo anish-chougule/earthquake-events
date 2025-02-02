@@ -1,0 +1,5 @@
+pandas
+pydeck
+requests
+psycopg2
+streamlit
