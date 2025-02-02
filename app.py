@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pydeck as pdk
 from utility import *
 
@@ -20,7 +20,7 @@ if "earthquake_data" not in st.session_state:
 
 # Create a form to input parameters
 with st.form(key='earthquake_form'):
-    start_date = st.date_input("Start date", value=datetime.today() - timedelta(days=30), min_value='2000-01-01')
+    start_date = st.date_input("Start date", value=datetime.today() - timedelta(days=30), min_value=date(2000, 1, 1))
     end_date = st.date_input("End date", value=datetime.today(), max_value=datetime.today())
     min_magnitude = st.slider("Minimum Magnitude", min_value=1.0, max_value=10.0, value=2.5, step=0.1)
     event_type = st.selectbox("Event Type", options=["earthquake", "explosion", "quarry blast", "landslide", "ice quake"])
